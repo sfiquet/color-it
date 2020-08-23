@@ -17,13 +17,20 @@ h1 {
 .App-content {
   flex: 1 0 auto;
   display: flex;
-  margin: auto;
   flex-direction: column;
   align-items: center;
 }
 
 .App-main, .App-aside {
-  margin: .5rem;
+  width: 100%;
+}
+
+.App-aside {
+}
+
+.App-aside-box {
+  background-color: antiquewhite;
+  padding: 2rem .5rem;
 }
 
 .App-footer {
@@ -33,6 +40,15 @@ h1 {
 
 /* medium */
 @media screen and (min-width: 768px){
+  .App-content {
+    margin: auto;
+  }
+  .App-main, .App-aside {
+    margin: 1rem;
+  }
+  .App-aside-box {
+    border-radius: .5rem;
+  }
 }
 
 /* large */
@@ -40,8 +56,5 @@ h1 {
   .App-content {
     flex-direction: row;
     align-items: initial;
-  }
-  .App-main, .App-aside {
-    margin: 1rem;
   }
 }

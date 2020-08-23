@@ -1,4 +1,5 @@
 import React from 'react';
+import ColourMatcher from './ColourMatcher';
 import './App.css';
 
 function App() {
@@ -8,9 +9,13 @@ function App() {
         <h1>Color It!</h1>
       </header>
       <div className="App-content">
-        <main className="App-main">The colours go here</main>
+        <main className="App-main">
+          <ColourMatcher />
+        </main>
         <aside className="App-aside">
-          Design in greyscale then generate colour scales with matching contrast
+          <div className="App-aside-box">
+            Design in greyscale then generate colour scales with matching contrast
+          </div>
         </aside>
       </div>
       <footer className="App-footer">made by Sylvie Fiquet</footer>

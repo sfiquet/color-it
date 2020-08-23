@@ -1,0 +1,41 @@
+.ColourMatcher {
+  display: flex;
+  background-color: #eeeeee;
+  padding: 1rem;
+}
+
+.BaseColourScale {
+  padding: .5rem;
+  justify-content: center;
+}
+
+.swatch {
+  height: 3rem;
+  width: 3rem;
+  background-color: orange;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.base {
+  margin-right: 1rem;
+}
+
+.horizontal {
+  display: flex;
+  flex-direction: row;
+}
+
+.vertical {
+  display: flex;
+  flex-direction: column;
+}
+
+/* medium */
+@media screen and (min-width: 768px) {
+  .ColourMatcher {
+    border-radius: .5rem;
+  }
+}
