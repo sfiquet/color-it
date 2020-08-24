@@ -31,6 +31,10 @@ h1 {
 .App-aside-box {
   background-color: antiquewhite;
   padding: 2rem .5rem;
+  text-align: left;
+}
+.App-aside-box h2 {
+  text-align: center;
 }
 
 .App-footer {
@@ -48,6 +52,7 @@ h1 {
   }
   .App-aside-box {
     border-radius: .5rem;
+    padding: 2em;
   }
 }
 

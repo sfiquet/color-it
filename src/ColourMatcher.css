@@ -1,7 +1,7 @@
 .ColourMatcher {
-  display: flex;
   background-color: #eeeeee;
   padding: 1rem;
+  padding-bottom: 3rem;
 }
 
 .BaseColourScale {
