@@ -24,12 +24,12 @@
 }
 
 .horizontal {
-  display: flex;
+  //display: flex;
   flex-direction: row;
 }
 
 .vertical {
-  display: flex;
+  //display: flex;
   flex-direction: column;
 }
 

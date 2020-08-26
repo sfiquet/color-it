@@ -12,7 +12,7 @@ test('renders title', () => {
 
 test('renders colour matcher', () => {
   render(<App />);
-  const el = screen.getByRole('grid', { name: /color matcher/i });
+  const el = screen.getByRole('table', { name: /color matcher/i });
   expect(el).toBeInTheDocument();
 });
 

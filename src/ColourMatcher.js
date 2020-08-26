@@ -15,28 +15,43 @@ function getHueName(hue){
 function ColourSwatch({colour, isBase, label}){
   let classes = 'swatch';
   classes = isBase ? [classes, 'base'].join(' ') :  classes;
-  const role = isBase ? 'rowheader' : 'gridcell';
   return (
-    <div className={classes} style={ {backgroundColor: colour} } role={role} aria-label={label}></div>
+    <div className={classes} style={ {backgroundColor: colour} }></div>
   );
 }
 
 function ColourScale({colours, direction}){
-  return (
-    <div className={direction}>
-      {colours.map(colour => (
-        <ColourSwatch colour={colour} key={colour} />
-      ))}
-    </div>
-  );
+  const result = colours.map(colour => (
+        <td key={colour}><ColourSwatch colour={colour} /></td>
+      ));
+  return result;
 }
 
 function BaseColourScale({base, scale, direction, label}){
   return (
-    <div className={`BaseColourScale ${direction}`} role="row">
-      <ColourSwatch colour={base} isBase="true" label={label} />
+    <tr className={`BaseColourScale ${direction}`} role="row">
+      <th scope="row" aria-label={label}><ColourSwatch colour={base} isBase="true" /></th>
       <ColourScale colours={scale} direction={direction} />
-    </div>
+    </tr>
+  );
+}
+
+function HeaderRow({headers}){
+  return (
+    <tr className="sr-only">
+      {headers.map(header => (<th scope="col" key={header}>{header}</th>))}
+    </tr>
+  );
+}
+
+function GreyScaleRow({base, greyscale}){
+  return (
+    <tr>
+      <th scope="row" aria-label="greyscale"><ColourSwatch colour={base} isBase="true" /></th>
+      {greyscale.map((shade, id) => (
+        <th scope="col" key={id}><ColourSwatch colour={shade} /></th>
+      ))}
+    </tr>
   );
 }
 
@@ -46,17 +61,26 @@ function ColourMatcher({title, headingLevel}){
   const hue = Math.floor(Math.random() * 360);
   const hueLabel = getHueName(hue);
   const base = chroma.hsl(hue, 1, .5);
+  const base2 = chroma.hsl((hue + 180) % 360, 1, .5);
   let scale = calculateColourScale(base, greyscale);
+  let scale2 = calculateColourScale(base2, greyscale);
   let scaleDirection = 'horizontal';
   let otherDirection = 'vertical';
   const Heading = headingLevel <= 6 ? `h${headingLevel}` : 'p';
+  const headers = ['Base', '25%', '50%', '75%'];
   return (
     <div className="ColourMatcher">
-      <Heading id="colourmatcher">{title}</Heading>
-      <div className={otherDirection} role="grid" aria-labelledby="colourmatcher">
-        <BaseColourScale base={black} scale={greyscale} direction={scaleDirection} label="greyscale" />
+      <table className={otherDirection} role="table" aria-labelledby="colourmatcher">
+        <caption id="colourmatcher"><Heading>{title}</Heading></caption>
+        <thead>
+          <HeaderRow headers={headers}/>
+          <GreyScaleRow base={black} greyscale={greyscale} />
+        </thead>
+        <tbody>
         <BaseColourScale base={base} scale={scale} direction={scaleDirection} label={hueLabel} />      
-      </div>
+        <BaseColourScale base={base2} scale={scale2} direction={scaleDirection} label={hueLabel} />      
+        </tbody>
+      </table>
     </div>
   );
 }
