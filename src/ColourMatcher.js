@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import chroma from 'chroma-js';
 import './ColourMatcher.css';
 
@@ -120,10 +120,25 @@ function GreyScaleRow({base, greyscale}){
   );
 }
 
+function GreyScaleSelection({steps, setSteps}){
+  return (
+    <fieldset>
+      <legend>Greyscale Options</legend>
+      <label>
+        Number of Steps:
+        <input type="number" min="1" max="20" value={steps} onChange={(event) => setSteps(Number(event.target.value))} />
+      </label>
+    </fieldset>
+  );
+}
+
 function ColourMatcher({title, headingLevel}){
+  const [steps, setSteps] = useState(3);
+
   let black = 'black';
-  const lstarScale = createLStarScale(3);
+  const lstarScale = createLStarScale(steps);
   let greyscale = createGreyScale(lstarScale);
+
   const hue = Math.floor(Math.random() * 360);
   const hueLabel = getHueName(hue);
   const base = chroma.hsl(hue, 1, .5);
@@ -132,8 +147,10 @@ function ColourMatcher({title, headingLevel}){
   let scale2 = createColourScale(base2, lstarScale);
   let scaleDirection = 'horizontal';
   let otherDirection = 'vertical';
+
   const Heading = headingLevel <= 6 ? `h${headingLevel}` : 'p';
-  const headers = ['Base', '25%', '50%', '75%'];
+  const headers = ['Base', ...lstarScale.map(item => `${Math.round(item)}%`)];
+
   return (
     <div className="ColourMatcher">
       <table className={otherDirection} role="table" aria-labelledby="colourmatcher">
@@ -147,6 +164,9 @@ function ColourMatcher({title, headingLevel}){
         <BaseColourScale base={base2} scale={scale2} direction={scaleDirection} label={hueLabel} />      
         </tbody>
       </table>
+      <form className="ColourMatcherForm">
+        <GreyScaleSelection steps={steps} setSteps={setSteps} />
+      </form>
     </div>
   );
 }
