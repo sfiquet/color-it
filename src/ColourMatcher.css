@@ -2,6 +2,8 @@
   background-color: #eeeeee;
   padding: 1rem;
   padding-bottom: 3rem;
+  display: flex;
+  justify-content: center;
 }
 
 .BaseColourScale {

@@ -2,15 +2,80 @@ import React from 'react';
 import chroma from 'chroma-js';
 import './ColourMatcher.css';
 
-function calculateGreyscale(steps){
-  return ['#cccccc', '#888888', '#444444'];
+/*********************/
+
+function createLStarScale(steps){
+  const RANGE_SIZE = 100; // lstar is a percentage
+  const stepSize =  RANGE_SIZE / (steps + 1);
+  const lstarScale = [];
+  let sum = 0;
+  for (let i = 0; i < steps; i++){
+    sum += stepSize;
+    lstarScale[i] = sum;
+  }
+  return lstarScale;
 }
-function calculateColourScale(base, greyscale){
-  return greyscale;
+
+function createGreyScale(lstarScale){
+  return lstarScale.map(lstar => chroma.lab(lstar, 0, 0).hex());
 }
+
+function getLuminanceColourScale(base, lstarScale){
+  let lumScale = lstarScale.map(lstar => chroma.lab(lstar, 0, 0).luminance());
+
+  let baseCol = chroma(base);
+  return lumScale.map(lum => baseCol.luminance(lum).hex());
+}
+
+function getLchColourScale(base, lstarScale){
+  let getValidRGB = (lstar, maxChroma, hue) => {
+    let color = chroma.lch(lstar, maxChroma, hue);
+    if (!color.clipped()){
+      return color;
+    }
+
+    // Assumption: For a given lightness and hue, at some point on the chroma axis 
+    // the colour becomes invalid in RGB. We look for that point.
+    // We use integers to avoid going too deep with the divisions.
+    let min = 0;
+    let max = Math.floor(maxChroma);
+    let chr;
+    while (min < max){
+      chr = Math.floor((min + max + 1) / 2); // use integers to avoid going too deep with the divisions
+      color = chroma.lch(lstar, chr, hue);
+      if (color.clipped()){
+        max = chr - 1; // exclude chr from the range, the colour is not valid
+      } else {
+        min = chr;
+      }
+    }
+    return chroma.lch(lstar, min, hue);
+  }
+
+  let [, chr, hue] = chroma(base).lch();
+
+  let scale = lstarScale.map(lstar => getValidRGB(lstar, chr, hue).hex());
+  return scale;
+}
+
+function createColourScale(base, lstarScale, method){
+  switch(method){
+    case 'lch':
+      return getLchColourScale(base, lstarScale);
+    
+    case 'luminance':
+      return getLuminanceColourScale(base, lstarScale);
+    
+    default:
+      return getLuminanceColourScale(base, lstarScale);
+  }
+}
+
 function getHueName(hue){
-  return 'random';
+  return chroma.hsl(hue, 1, .5).name();
 }
+
+/*********************/
 
 function ColourSwatch({colour, isBase, label}){
   let classes = 'swatch';
@@ -57,13 +122,14 @@ function GreyScaleRow({base, greyscale}){
 
 function ColourMatcher({title, headingLevel}){
   let black = 'black';
-  let greyscale = calculateGreyscale(3);
+  const lstarScale = createLStarScale(3);
+  let greyscale = createGreyScale(lstarScale);
   const hue = Math.floor(Math.random() * 360);
   const hueLabel = getHueName(hue);
   const base = chroma.hsl(hue, 1, .5);
   const base2 = chroma.hsl((hue + 180) % 360, 1, .5);
-  let scale = calculateColourScale(base, greyscale);
-  let scale2 = calculateColourScale(base2, greyscale);
+  let scale = createColourScale(base, lstarScale);
+  let scale2 = createColourScale(base2, lstarScale);
   let scaleDirection = 'horizontal';
   let otherDirection = 'vertical';
   const Heading = headingLevel <= 6 ? `h${headingLevel}` : 'p';
