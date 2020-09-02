@@ -1,3 +1,7 @@
+label > input {
+  margin: 0 .5rem 0 .25rem;
+}
+
 .ColourMatcher {
   background-color: #eeeeee;
   padding: 1rem;
@@ -35,6 +39,10 @@
   flex-direction: column;
 }
 
+.error {
+  border: 1px solid red;
+}
+
 .ColourMatcherForm {
   padding: 1rem 0;
   background-color: 'bisque';
@@ -42,8 +50,8 @@
   margin: 2rem 0;
 }
 
-.ColourMatcherForm fieldset {
-  padding: 1rem;
+.fieldsetrow {
+  padding: .5rem 0;
 }
 
 /* medium */

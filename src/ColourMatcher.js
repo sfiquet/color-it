@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import chroma from 'chroma-js';
 import './ColourMatcher.css';
 
 /*********************/
+
+function getRandomSaturedColour(){
+  const hue = Math.floor(Math.random() * 360);
+  return chroma.hsl(hue, 1, .5).hex();
+}
 
 function createLStarScale(steps){
   const RANGE_SIZE = 100; // lstar is a percentage
@@ -124,29 +129,178 @@ function GreyScaleSelection({steps, setSteps}){
   return (
     <fieldset>
       <legend>Greyscale Options</legend>
-      <label>
-        Number of Steps:
-        <input type="number" min="1" max="20" value={steps} onChange={(event) => setSteps(Number(event.target.value))} />
-      </label>
+      <div className="fieldsetrow">
+        <label>
+          Number of Steps:
+          <input type="number" min="1" max="20" value={steps} onChange={(event) => setSteps(Number(event.target.value))} />
+        </label>
+      </div>
     </fieldset>
+  );
+}
+
+function HexInput({colour, setColour}){
+
+  function validate(hexstr){
+    const re = new RegExp(hexPattern);
+    return re.test(hexstr);
+  }
+
+  function handleChange(event){
+    const value = event.target.value;
+    setHexInput(value);
+    if (validate(value)){
+      setColour(chroma(value).hex());
+    }
+  }
+
+  const [hexInput, setHexInput] = useState(colour);
+  const [hasFocus, setHasFocus] = useState(false);
+
+  const hexPattern = "^#?(?:[A-Fa-f0-9]{3}){1,2}$";
+
+
+  let value;
+  let isValid;
+  
+  if (hasFocus){
+    // while the component has focus, it uses its own state
+    isValid = validate(hexInput);
+    value = hexInput;
+
+  } else {
+    // when the component doesn't have focus, its state must match the props
+    isValid = true;
+    value = colour;
+    if (hexInput !== colour) setHexInput(colour);
+  }
+
+  return (
+    <input className={ isValid ? '' : 'error' } type="text" pattern={hexPattern} value={value} 
+      onChange={ handleChange }
+      onBlur={ event => setHasFocus(false) }
+      onFocus={ event => setHasFocus(true) }
+    />
+  );
+}
+
+function HslPicker({hslColour, setHslColour}){
+  return(
+    <Fragment>
+      <label>
+        H:
+        <input type="number" min="0" max="360" value={hslColour.h} onChange={event => setHslColour({...hslColour, h: event.target.value})} />
+      </label>
+      <label>
+        S:
+        <input type="number" min="0" max="100" value={hslColour.s} onChange={event => setHslColour({...hslColour, s: event.target.value})} />
+      </label>
+      <label>
+        L:
+        <input type="number" min="0" max="100" value={hslColour.l} onChange={event => setHslColour({...hslColour, l: event.target.value})} />
+      </label>
+    </Fragment>
+  );
+}
+
+function ColourSelection({colour, setColour}){
+  const chrCol = chroma(colour);
+  const [r, g, b] = chrCol.rgb();
+  let [h, s, l] = chrCol.hsl();
+  let hslObj = {
+    h: isNaN(h) ? 0 : Math.round(h),
+    s: Math.round(s * 100),
+    l: Math.round(l * 100),
+  };
+
+  function setHslColour({h, s, l}){
+    const col = chroma.hsl(h, s / 100, l /  100);
+    setColour(col.hex());
+  }
+
+  return (
+    <fieldset>
+      <legend>Base Color</legend>
+      <div className="fieldsetrow">
+        <label>
+          HEX:
+          <HexInput colour={colour} setColour={setColour} />
+        </label>
+      </div>
+      <div className="fieldsetrow">
+        <label>
+          R:
+          <input type="number" min="0" max="255" value={r} onChange={event => setColour(chrCol.set('rgb.r', event.target.value).hex())} />
+        </label>
+        <label>
+          G:
+          <input type="number" min="0" max="255" value={g} onChange={event => setColour(chrCol.set('rgb.g', event.target.value).hex())} />
+        </label>
+        <label>
+          B:
+          <input type="number" min="0" max="255" value={b} onChange={event => setColour(chrCol.set('rgb.b', event.target.value).hex())} />
+        </label>
+      </div>
+      <div className="fieldsetrow">
+        <HslPicker hslColour={hslObj} setHslColour={setHslColour} />
+      </div>
+    </fieldset>
+  );  
+}
+
+function ColourList({colours, setColours, selected, setSelected}){
+  const elList = colours.map((colour, index) => {
+    const selectedClass = index === selected ? 'selected' : '';
+    return (
+      <li className={selectedClass} key={index} >
+        <ColourSwatch colour={colour} />
+      </li>
+    )
+  });
+
+  return (
+    <ul>
+      {elList}
+    </ul>
+  );
+}
+
+function ColourListSelection({colours, setColours}){
+  const [selected, setSelected] = useState(0);
+
+  const changeSelectedColour = (newColour) => {
+    let allColours = [...colours];
+    allColours[selected] = newColour;
+    setColours(allColours);
+  };
+
+  return (
+    <Fragment>
+      <ColourList colours={colours} selected={selected} setColours={setColours} setSelected={setSelected} />
+      <ColourSelection colour={colours[selected]} setColour={changeSelectedColour} />
+    </Fragment>
   );
 }
 
 function ColourMatcher({title, headingLevel}){
   const [steps, setSteps] = useState(3);
+  const [colours, setColours] = useState([ getRandomSaturedColour() ]);
 
-  let black = 'black';
+  const black = 'black';
   const lstarScale = createLStarScale(steps);
-  let greyscale = createGreyScale(lstarScale);
+  const greyscale = createGreyScale(lstarScale);
 
-  const hue = Math.floor(Math.random() * 360);
-  const hueLabel = getHueName(hue);
-  const base = chroma.hsl(hue, 1, .5);
-  const base2 = chroma.hsl((hue + 180) % 360, 1, .5);
-  let scale = createColourScale(base, lstarScale);
-  let scale2 = createColourScale(base2, lstarScale);
   let scaleDirection = 'horizontal';
   let otherDirection = 'vertical';
+
+  const colourScales = colours.map((colour, index) => {
+    const scale = createColourScale(colour, lstarScale);
+    const hueLabel = getHueName(chroma(colour).get('hsl.h'));
+    
+    return (
+      <BaseColourScale key={index} base={colour} scale={scale} direction={scaleDirection} label={hueLabel} />      
+    )
+  });
 
   const Heading = headingLevel <= 6 ? `h${headingLevel}` : 'p';
   const headers = ['Base', ...lstarScale.map(item => `${Math.round(item)}%`)];
@@ -160,12 +314,12 @@ function ColourMatcher({title, headingLevel}){
           <GreyScaleRow base={black} greyscale={greyscale} />
         </thead>
         <tbody>
-        <BaseColourScale base={base} scale={scale} direction={scaleDirection} label={hueLabel} />      
-        <BaseColourScale base={base2} scale={scale2} direction={scaleDirection} label={hueLabel} />      
+          {colourScales}
         </tbody>
       </table>
       <form className="ColourMatcherForm">
         <GreyScaleSelection steps={steps} setSteps={setSteps} />
+        <ColourListSelection colours={colours} setColours={setColours} />
       </form>
     </div>
   );
