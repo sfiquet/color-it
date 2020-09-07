@@ -43,15 +43,22 @@ label > input {
   border: 1px solid red;
 }
 
-.ColourMatcherForm {
+.ColourMatcherSelection {
   padding: 1rem 0;
-  background-color: 'bisque';
+  background-color: bisque;
   width: 100%;
   margin: 2rem 0;
 }
 
 .fieldsetrow {
   padding: .5rem 0;
+}
+
+.ColourList {
+  /*display: flex;*/
+  list-style-type: none;
+  margin: 1rem 0;
+  padding: 0;
 }
 
 /* medium */

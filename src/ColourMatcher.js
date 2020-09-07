@@ -220,7 +220,7 @@ function ColourSelection({colour, setColour}){
 
   return (
     <fieldset>
-      <legend>Base Color</legend>
+      <legend>New Color</legend>
       <div className="fieldsetrow">
         <label>
           HEX:
@@ -248,18 +248,37 @@ function ColourSelection({colour, setColour}){
   );  
 }
 
+function NewColourSelection({onSubmit}){
+  const [colour, setColour] = useState(getRandomSaturedColour());
+  
+  const handleSubmit = event => {
+    event.preventDefault();
+    onSubmit(colour);
+    setColour(getRandomSaturedColour());
+  };
+
+  return(
+    <form onSubmit={handleSubmit}>
+      <ColourSelection colour={colour} setColour={setColour} />
+      <button type="submit">Add</button>
+    </form>
+  );
+}
+
 function ColourList({colours, setColours, selected, setSelected}){
-  const elList = colours.map((colour, index) => {
+  let elList = colours.map((colour, index) => {
     const selectedClass = index === selected ? 'selected' : '';
     return (
       <li className={selectedClass} key={index} >
-        <ColourSwatch colour={colour} />
+        <button type="button">
+          <ColourSwatch colour={colour} />
+        </button>
       </li>
     )
   });
 
   return (
-    <ul>
+    <ul className="ColourList">
       {elList}
     </ul>
   );
@@ -274,10 +293,15 @@ function ColourListSelection({colours, setColours}){
     setColours(allColours);
   };
 
+  const addNewColour = (newColour) => {
+    setColours([...colours, newColour]);
+  };
+
   return (
     <Fragment>
       <ColourList colours={colours} selected={selected} setColours={setColours} setSelected={setSelected} />
-      <ColourSelection colour={colours[selected]} setColour={changeSelectedColour} />
+
+      <NewColourSelection onSubmit={addNewColour} />
     </Fragment>
   );
 }
@@ -317,10 +341,10 @@ function ColourMatcher({title, headingLevel}){
           {colourScales}
         </tbody>
       </table>
-      <form className="ColourMatcherForm">
+      <div className="ColourMatcherSelection">
         <GreyScaleSelection steps={steps} setSteps={setSteps} />
         <ColourListSelection colours={colours} setColours={setColours} />
-      </form>
+      </div>
     </div>
   );
 }
