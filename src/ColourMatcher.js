@@ -265,7 +265,7 @@ function NewColourSelection({onSubmit}){
           <ColourSelection colour={colour} setColour={setColour} />
           <div className="stack">
             <ColourSwatch colour={colour} />
-            <button type="submit" aria-label={`Add ${colour} to the base colour selection`}>Add</button>
+            <button type="submit" aria-label={`Add ${colour} to the base color selection`}>Add</button>
           </div>
         </div>
       </fieldset>
@@ -277,7 +277,7 @@ function ColourList({colours, setColours, announce}){
   const removeColour = index => {
     let colArr = [...colours.slice(0, index), ...colours.slice(index + 1)];
     setColours(colArr);
-    announce(`Colour ${colours[index]} was removed from the base colour selection`);
+    announce(`Color ${colours[index]} was removed from the base color selection`);
   };
 
   let elList = colours.map((colour, index) => {
@@ -295,9 +295,15 @@ function ColourList({colours, setColours, announce}){
   });
 
   return (
-    <ul className="ColourList">
-      {elList}
-    </ul>
+    <div className="ColourListBox">
+      <ul className="ColourList">
+        {elList}
+      </ul>
+      <div className="ColourListEmpty">
+        <p>You haven't selected any base colors</p>
+        <p>To generate a color scale matching the selected greyscale, add a color to your selection &#x2193;</p>
+      </div>
+    </div>
   );
 }
 
@@ -305,7 +311,7 @@ function ColourListSelection({colours, setColours, announce}){
   
   const addNewColour = (newColour) => {
     setColours([...colours, newColour]);
-    announce(`Colour ${newColour} was added to the base colour selection`);
+    announce(`Color ${newColour} was added to the base color selection`);
   };
 
   return (
@@ -370,7 +376,7 @@ function ColourMatcher({title, headingLevel}){
       <div className="ColourMatcherSelection">
         <h3>Greyscale</h3>
         <GreyScaleSelection steps={steps} setSteps={setSteps} />
-        <h3>Base Colours</h3>
+        <h3>Base Colors</h3>
         <ColourListSelection colours={colours} setColours={setColours} announce={sendMessage} />
       </div>
     </div>

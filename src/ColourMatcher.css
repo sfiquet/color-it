@@ -73,10 +73,13 @@ fieldset {
   margin: 2rem 0;
 }
 
-.ColourList {
-  /*display: flex;*/
-  list-style-type: none;
+.ColourListBox {
   margin: 1rem 0;
+}
+
+.ColourList {
+  list-style-type: none;
+  margin: 0;
   padding: 0;
 }
 
@@ -84,6 +87,18 @@ fieldset {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.ColourListEmpty {
+  margin: 2rem 0;
+}
+
+.ColourListEmpty, .ColourList:empty {
+  display: none;
+}
+
+.ColourList:empty + .ColourListEmpty {
+  display: block;
 }
 
 .NewColourSelection {
