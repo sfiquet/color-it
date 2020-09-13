@@ -273,7 +273,13 @@ function NewColourSelection({onSubmit}){
   );
 }
 
-function ColourList({colours, setColours}){
+function ColourList({colours, setColours, announce}){
+  const removeColour = index => {
+    let colArr = [...colours.slice(0, index), ...colours.slice(index + 1)];
+    setColours(colArr);
+    announce(`Colour ${colours[index]} was removed from the base colour selection`);
+  };
+
   let elList = colours.map((colour, index) => {
     return (
       <li key={index} >
@@ -281,7 +287,9 @@ function ColourList({colours, setColours}){
           <ColourSwatch colour={colour} />
           <span>{colour}</span>
         </div>
-        <button type="button" aria-label={`remove ${colour}`}>Remove</button>
+        <button type="button" aria-label={`remove ${colour}`} onClick={() => removeColour(index)} >
+          Remove
+        </button>
       </li>
     )
   });
@@ -302,7 +310,7 @@ function ColourListSelection({colours, setColours, announce}){
 
   return (
     <Fragment>
-      <ColourList colours={colours} setColours={setColours} />
+      <ColourList colours={colours} setColours={setColours} announce={announce} />
       <NewColourSelection onSubmit={addNewColour} />
     </Fragment>
   );
