@@ -2,6 +2,21 @@ label > input {
   margin: 0 .5rem 0 .25rem;
 }
 
+fieldset {
+  padding-top: .75rem;
+  margin: 0;
+}
+
+.sr-only {
+  position: absolute !important;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding:0 !important;
+  border:0 !important;
+  height: 1px !important;
+  width: 1px !important;
+  overflow: hidden;
+}
+
 .ColourMatcher {
   background-color: #eeeeee;
   padding: 1rem;
@@ -39,19 +54,23 @@ label > input {
   flex-direction: column;
 }
 
+.stack {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.stack * + * {
+  margin-top: 1rem;
+}
+
 .error {
   border: 1px solid red;
 }
 
 .ColourMatcherSelection {
   padding: 1rem 0;
-  background-color: bisque;
   width: 100%;
   margin: 2rem 0;
-}
-
-.fieldsetrow {
-  padding: .5rem 0;
 }
 
 .ColourList {
@@ -61,9 +80,65 @@ label > input {
   padding: 0;
 }
 
+.ColourList li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.NewColourSelection {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+.ColourItem {
+  display: flex;
+  align-items: center;
+}
+.swatch + span {
+  padding: 0 1rem;
+}
+
+li + li {
+  margin-top: .5rem;
+}
+
 /* medium */
 @media screen and (min-width: 768px) {
   .ColourMatcher {
     border-radius: .5rem;
   }
 }
+
+/* ColourMatcherSelection width */
+@media screen and (min-width: 460px) {
+  .ColourMatcherSelection {
+    width: 75%;
+  }
+}
+
+@media screen and (min-width: 680px) {
+  .ColourMatcherSelection {
+    width: 50%;
+  }
+}
+
+@media screen and (min-width: 960px) {
+  .ColourMatcherSelection {
+    width: 100%;
+  }
+}
+
+@media screen and (min-width: 1100px) {
+  .ColourMatcherSelection {
+    width: 75%;
+  }
+}
+
+@media screen and (min-width: 1450px) {
+  .ColourMatcherSelection {
+    width: 50%;
+  }
+}
+

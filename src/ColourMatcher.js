@@ -108,7 +108,7 @@ function BaseColourScale({base, scale, direction, label}){
 
 function HeaderRow({headers}){
   return (
-    <tr className="sr-only">
+    <tr>
       {headers.map(header => (<th scope="col" key={header}>{header}</th>))}
     </tr>
   );
@@ -129,7 +129,7 @@ function GreyScaleSelection({steps, setSteps}){
   return (
     <fieldset>
       <legend>Greyscale Options</legend>
-      <div className="fieldsetrow">
+      <div>
         <label>
           Number of Steps:
           <input type="number" min="1" max="20" value={steps} onChange={(event) => setSteps(Number(event.target.value))} />
@@ -158,6 +158,7 @@ function HexInput({colour, setColour}){
   const [hasFocus, setHasFocus] = useState(false);
 
   const hexPattern = "^#?(?:[A-Fa-f0-9]{3}){1,2}$";
+  const maxLength = 7;
 
 
   let value;
@@ -176,7 +177,7 @@ function HexInput({colour, setColour}){
   }
 
   return (
-    <input className={ isValid ? '' : 'error' } type="text" pattern={hexPattern} value={value} 
+    <input className={ isValid ? '' : 'error' } type="text" pattern={hexPattern} value={value} size={maxLength} maxLength={maxLength}
       onChange={ handleChange }
       onBlur={ event => setHasFocus(false) }
       onFocus={ event => setHasFocus(true) }
@@ -219,15 +220,14 @@ function ColourSelection({colour, setColour}){
   }
 
   return (
-    <fieldset>
-      <legend>New Color</legend>
-      <div className="fieldsetrow">
+    <div className="stack">
+      <div>
         <label>
           HEX:
           <HexInput colour={colour} setColour={setColour} />
         </label>
       </div>
-      <div className="fieldsetrow">
+      <div>
         <label>
           R:
           <input type="number" min="0" max="255" value={r} onChange={event => setColour(chrCol.set('rgb.r', event.target.value).hex())} />
@@ -241,10 +241,10 @@ function ColourSelection({colour, setColour}){
           <input type="number" min="0" max="255" value={b} onChange={event => setColour(chrCol.set('rgb.b', event.target.value).hex())} />
         </label>
       </div>
-      <div className="fieldsetrow">
+      <div>
         <HslPicker hslColour={hslObj} setHslColour={setHslColour} />
       </div>
-    </fieldset>
+    </div>
   );  
 }
 
@@ -259,20 +259,29 @@ function NewColourSelection({onSubmit}){
 
   return(
     <form onSubmit={handleSubmit}>
-      <ColourSelection colour={colour} setColour={setColour} />
-      <button type="submit">Add</button>
+      <fieldset>
+        <legend>New Color</legend>
+        <div className="NewColourSelection">
+          <ColourSelection colour={colour} setColour={setColour} />
+          <div className="stack">
+            <ColourSwatch colour={colour} />
+            <button type="submit" aria-label={`Add ${colour} to the base colour selection`}>Add</button>
+          </div>
+        </div>
+      </fieldset>
     </form>
   );
 }
 
-function ColourList({colours, setColours, selected, setSelected}){
+function ColourList({colours, setColours}){
   let elList = colours.map((colour, index) => {
-    const selectedClass = index === selected ? 'selected' : '';
     return (
-      <li className={selectedClass} key={index} >
-        <button type="button">
+      <li key={index} >
+        <div className="ColourItem">
           <ColourSwatch colour={colour} />
-        </button>
+          <span>{colour}</span>
+        </div>
+        <button type="button" aria-label={`remove ${colour}`}>Remove</button>
       </li>
     )
   });
@@ -284,31 +293,35 @@ function ColourList({colours, setColours, selected, setSelected}){
   );
 }
 
-function ColourListSelection({colours, setColours}){
-  const [selected, setSelected] = useState(0);
-
-  const changeSelectedColour = (newColour) => {
-    let allColours = [...colours];
-    allColours[selected] = newColour;
-    setColours(allColours);
-  };
-
+function ColourListSelection({colours, setColours, announce}){
+  
   const addNewColour = (newColour) => {
     setColours([...colours, newColour]);
+    announce(`Colour ${newColour} was added to the base colour selection`);
   };
 
   return (
     <Fragment>
-      <ColourList colours={colours} selected={selected} setColours={setColours} setSelected={setSelected} />
-
+      <ColourList colours={colours} setColours={setColours} />
       <NewColourSelection onSubmit={addNewColour} />
     </Fragment>
+  );
+}
+
+function LiveStatus({messages}){
+  return (
+    <div className="sr-only" role="status" aria-live="polite" aria-relevant="additions">
+      {messages.map((message, index) => (
+        <p key={index}>{message}</p>
+      ))}
+    </div>
   );
 }
 
 function ColourMatcher({title, headingLevel}){
   const [steps, setSteps] = useState(3);
   const [colours, setColours] = useState([ getRandomSaturedColour() ]);
+  const [messages, setMessages] = useState([]);
 
   const black = 'black';
   const lstarScale = createLStarScale(steps);
@@ -316,6 +329,10 @@ function ColourMatcher({title, headingLevel}){
 
   let scaleDirection = 'horizontal';
   let otherDirection = 'vertical';
+
+  const sendMessage = message => {
+    setMessages([...messages, message]);
+  };
 
   const colourScales = colours.map((colour, index) => {
     const scale = createColourScale(colour, lstarScale);
@@ -331,6 +348,7 @@ function ColourMatcher({title, headingLevel}){
 
   return (
     <div className="ColourMatcher">
+      <LiveStatus messages={messages} />
       <table className={otherDirection} role="table" aria-labelledby="colourmatcher">
         <caption id="colourmatcher"><Heading>{title}</Heading></caption>
         <thead>
@@ -342,8 +360,10 @@ function ColourMatcher({title, headingLevel}){
         </tbody>
       </table>
       <div className="ColourMatcherSelection">
+        <h3>Greyscale</h3>
         <GreyScaleSelection steps={steps} setSteps={setSteps} />
-        <ColourListSelection colours={colours} setColours={setColours} />
+        <h3>Base Colours</h3>
+        <ColourListSelection colours={colours} setColours={setColours} announce={sendMessage} />
       </div>
     </div>
   );
