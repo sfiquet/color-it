@@ -82,7 +82,7 @@ function getHueName(hue){
 
 /*********************/
 
-function ColourSwatch({colour, isBase, label}){
+function ColourSwatch({colour, isBase}){
   let classes = 'swatch';
   classes = isBase ? [classes, 'base'].join(' ') :  classes;
   return (
@@ -90,9 +90,26 @@ function ColourSwatch({colour, isBase, label}){
   );
 }
 
+function ColourLabel({colour}){
+  return (
+    <div className="ColourLabel"><code>{colour}</code></div>
+  );
+}
+
+function ScaleSwatch({colour}){
+  return(
+    <Fragment>
+      <ColourSwatch colour={colour} />
+      <ColourLabel colour={colour} />
+    </Fragment>
+  );
+}
+
 function ColourScale({colours, direction}){
   const result = colours.map(colour => (
-        <td key={colour}><ColourSwatch colour={colour} /></td>
+        <td key={colour}>
+          <ScaleSwatch colour={colour} />
+        </td>
       ));
   return result;
 }
@@ -100,7 +117,7 @@ function ColourScale({colours, direction}){
 function BaseColourScale({base, scale, direction, label}){
   return (
     <tr className={`BaseColourScale ${direction}`} role="row">
-      <th scope="row" aria-label={label}><ColourSwatch colour={base} isBase="true" /></th>
+      <th scope="row" aria-label={label}><ScaleSwatch colour={base} /></th>
       <ColourScale colours={scale} direction={direction} />
     </tr>
   );
@@ -110,17 +127,6 @@ function HeaderRow({headers}){
   return (
     <tr>
       {headers.map(header => (<th scope="col" key={header}>{header}</th>))}
-    </tr>
-  );
-}
-
-function GreyScaleRow({base, greyscale}){
-  return (
-    <tr>
-      <th scope="row" aria-label="greyscale"><ColourSwatch colour={base} isBase="true" /></th>
-      {greyscale.map((shade, id) => (
-        <th scope="col" key={id}><ColourSwatch colour={shade} /></th>
-      ))}
     </tr>
   );
 }
@@ -367,9 +373,9 @@ function ColourMatcher({title, headingLevel}){
         <caption id="colourmatcher"><Heading>{title}</Heading></caption>
         <thead>
           <HeaderRow headers={headers}/>
-          <GreyScaleRow base={black} greyscale={greyscale} />
         </thead>
         <tbody>
+          <BaseColourScale base={black} scale={greyscale} direction={scaleDirection} label="greyscale" />
           {colourScales}
         </tbody>
       </table>
